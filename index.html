@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CPS Trainer AI</title>
+    <title>CPS Ultra</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            background-color: #0f0f0f;
+            background-color: #000;
             color: #00ffcc;
             display: flex;
             flex-direction: column;
@@ -15,116 +15,100 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: sans-serif;
             overflow: hidden;
             touch-action: none;
-            -webkit-user-select: none;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
         }
         #click-area {
-            width: 250px;
-            height: 250px;
-            border: 4px solid #00ffcc;
+            width: 220px;
+            height: 220px;
+            border: 5px solid #00ffcc;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 18px;
             text-align: center;
-            text-transform: uppercase;
-            box-shadow: 0 0 20px #00ffcc;
-            cursor: pointer;
-            transition: transform 0.05s;
-            margin-bottom: 20px;
+            box-shadow: 0 0 15px #00ffcc;
+            will-change: transform; /* Оптимизация для GPU */
+            transition: transform 0.05s ease-out;
         }
-        #click-area:active {
-            transform: scale(0.95);
-            background-color: rgba(0, 255, 204, 0.1);
-        }
-        #stats { font-size: 22px; margin-bottom: 20px; text-align: center; }
-        .btn { 
-            padding: 12px 25px; 
-            background: transparent; 
-            border: 2px solid #00ffcc; 
-            color: #00ffcc; 
-            border-radius: 8px; 
-            font-size: 16px;
-            cursor: pointer;
-        }
+        #click-area:active { transform: scale(0.92); }
+        #stats { font-size: 24px; margin-top: 20px; font-variant-numeric: tabular-nums; }
+        .btn { margin-top: 20px; padding: 10px 30px; background: #222; border: 1px solid #00ffcc; color: #00ffcc; border-radius: 5px; }
     </style>
 </head>
 <body>
-    <div id="click-area">КЛИКАЙ ЗДЕСЬ<br>(DRAG/FLY)</div>
+    <div id="click-area">КЛИКАЙ!</div>
     <div id="stats">
-        <div>CPS: <span id="cps">0</span></div>
-        <div>Клики: <span id="total">0</span></div>
-        <div>Время: <span id="timer">10</span>с</div>
+        CPS: <span id="cps">0.00</span><br>
+        КЛИКИ: <span id="total">0</span><br>
+        ВРЕМЯ: <span id="timer">10.0</span>с
     </div>
-    <button class="btn" onclick="reset()">СБРОС</button>
+    <button class="btn" onclick="location.reload()">СБРОС</button>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
-        tg.disableVerticalSwipe();
 
         let clicks = 0;
         let startTime = null;
-        let timerDuration = 10;
         let isFinished = false;
+        const duration = 10000; // 10 сек в мс
 
         const area = document.getElementById('click-area');
-        const cpsDisplay = document.getElementById('cps');
-        const totalDisplay = document.getElementById('total');
-        const timerDisplay = document.getElementById('timer');
+        const cpsDisp = document.getElementById('cps');
+        const totDisp = document.getElementById('total');
+        const timDisp = document.getElementById('timer');
 
-        // Обработка клика (максимально легкая)
+        // Супер-легкий обработчик
         area.addEventListener('pointerdown', (e) => {
             e.preventDefault();
             if (isFinished) return;
-            if (!startTime) startTime = Date.now();
+            if (!startTime) startTime = performance.now();
             clicks++;
-        });
+        }, { passive: false });
 
-        // Таймер и обновление экрана (раз в 100мс)
-        const timerInterval = setInterval(() => {
-            if (!startTime || isFinished) return;
-            
-            let elapsed = (Date.now() - startTime) / 1000;
-            let remaining = Math.max(0, timerDuration - elapsed);
-            
-            // Обновляем текст в HTML тут, чтобы не тормозило при кликах
-            timerDisplay.innerText = remaining.toFixed(1);
-            totalDisplay.innerText = clicks;
-            if (elapsed > 0) {
-                cpsDisplay.innerText = (clicks / elapsed).toFixed(2);
+        // Плавный цикл отрисовки (60+ FPS)
+        function update() {
+            if (!startTime || isFinished) {
+                if (!isFinished) requestAnimationFrame(update);
+                return;
             }
 
-            if (remaining <= 0) finishTest();
-        }, 100);
+            const now = performance.now();
+            const elapsed = now - startTime;
+            const remaining = Math.max(0, (duration - elapsed) / 1000);
 
-        function finishTest() {
-            if (isFinished) return;
-            isFinished = true;
-            clearInterval(timerInterval);
+            // Обновляем текст
+            timDisp.textContent = remaining.toFixed(1);
+            totDisp.textContent = clicks;
+            cpsDisp.textContent = (clicks / (elapsed / 1000)).toFixed(2);
 
-            area.style.opacity = "0.5";
-            area.style.borderColor = "#ff0066";
-            area.style.boxShadow = "0 0 20px #ff0066";
-            area.innerText = "ОБРАБОТКА...";
-            
-            const resultData = JSON.stringify({
-                cps: (clicks / timerDuration).toFixed(2), 
-                total_clicks: clicks
-            });
-
-            tg.sendData(resultData);
-            setTimeout(() => { tg.close(); }, 800);
+            if (elapsed >= duration) {
+                finish();
+            } else {
+                requestAnimationFrame(update);
+            }
         }
 
-        function reset() { location.reload(); }
+        function finish() {
+            isFinished = true;
+            area.style.borderColor = "#ff0055";
+            area.textContent = "КОНЕЦ";
+            
+            tg.sendData(JSON.stringify({
+                cps: (clicks / 10).toFixed(2),
+                total_clicks: clicks
+            }));
+            
+            setTimeout(() => tg.close(), 1000);
+        }
+
+        requestAnimationFrame(update);
     </script>
 </body>
 </html>
