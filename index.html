@@ -65,6 +65,7 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready(); // Сообщаем Telegram, что приложение готово
 
         let clicks = 0;
         let startTime = null;
@@ -78,7 +79,9 @@
 
         area.addEventListener('pointerdown', (e) => {
             if (isFinished) return;
-            if (!startTime) startTime = Date.now();
+            if (!startTime) {
+                startTime = Date.now();
+            }
             
             clicks++;
             totalDisplay.innerText = clicks;
@@ -97,27 +100,34 @@
             timerDisplay.innerText = remaining.toFixed(1);
 
             if (remaining <= 0) {
-                isFinished = true;
-                const finalCps = (clicks / timerDuration).toFixed(2);
-                
-                // Отправляем данные. Ключи: cps и total_clicks
-                tg.sendData(JSON.stringify({
-                    cps: finalCps, 
-                    total_clicks: clicks
-                }));
-                
-                // Небольшая задержка перед закрытием для стабильности отправки
-                setTimeout(() => { tg.close(); }, 200);
+                finishTest();
             }
         }, 100);
 
+        function finishTest() {
+            if (isFinished) return;
+            isFinished = true;
+            clearInterval(timerInterval);
+
+            const finalCps = (clicks / timerDuration).toFixed(2);
+            
+            // Подготавливаем данные
+            const resultData = JSON.stringify({
+                cps: finalCps, 
+                total_clicks: clicks
+            });
+
+            // Отправляем данные в Telegram
+            tg.sendData(resultData);
+            
+            // Увеличиваем задержку до 600мс, чтобы Telegram точно успел обработать sendData
+            setTimeout(() => { 
+                tg.close(); 
+            }, 600);
+        }
+
         function reset() {
-            clicks = 0;
-            startTime = null;
-            isFinished = false;
-            cpsDisplay.innerText = "0";
-            totalDisplay.innerText = "0";
-            timerDisplay.innerText = timerDuration;
+            location.reload(); // Самый надежный способ сброса
         }
     </script>
 </body>
