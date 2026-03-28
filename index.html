@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CPS Trainer</title>
+    <title>CPS Trainer AI</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -17,10 +17,10 @@
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
-            touch-action: none; /* Отключает стандартные жесты браузера (зум, скролл) */
-            -webkit-user-select: none; /* Запрещает выделение текста */
+            touch-action: none;
+            -webkit-user-select: none;
             user-select: none;
-            -webkit-tap-highlight-color: transparent; /* Убирает подсветку при нажатии */
+            -webkit-tap-highlight-color: transparent;
         }
         #click-area {
             width: 250px;
@@ -56,22 +56,19 @@
     </style>
 </head>
 <body>
-
     <div id="click-area">КЛИКАЙ ЗДЕСЬ<br>(DRAG/FLY)</div>
-
     <div id="stats">
         <div>CPS: <span id="cps">0</span></div>
         <div>Клики: <span id="total">0</span></div>
         <div>Время: <span id="timer">10</span>с</div>
     </div>
-
     <button class="btn" onclick="reset()">СБРОС</button>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
-        tg.disableVerticalSwipe(); // Защита от случайного закрытия свайпом
+        tg.disableVerticalSwipe();
 
         let clicks = 0;
         let startTime = null;
@@ -83,36 +80,29 @@
         const totalDisplay = document.getElementById('total');
         const timerDisplay = document.getElementById('timer');
 
-        // Обработка клика
+        // Обработка клика (максимально легкая)
         area.addEventListener('pointerdown', (e) => {
-            e.preventDefault(); // Запрещает системные действия (зум, контекстное меню)
-            
+            e.preventDefault();
             if (isFinished) return;
-            
-            if (!startTime) {
-                startTime = Date.now();
-            }
-            
+            if (!startTime) startTime = Date.now();
             clicks++;
-            totalDisplay.innerText = clicks;
-            
-            let elapsed = (Date.now() - startTime) / 1000;
-            if (elapsed > 0) {
-                cpsDisplay.innerText = (clicks / elapsed).toFixed(2);
-            }
         });
 
-        // Таймер замера
+        // Таймер и обновление экрана (раз в 100мс)
         const timerInterval = setInterval(() => {
             if (!startTime || isFinished) return;
             
             let elapsed = (Date.now() - startTime) / 1000;
             let remaining = Math.max(0, timerDuration - elapsed);
+            
+            // Обновляем текст в HTML тут, чтобы не тормозило при кликах
             timerDisplay.innerText = remaining.toFixed(1);
-
-            if (remaining <= 0) {
-                finishTest();
+            totalDisplay.innerText = clicks;
+            if (elapsed > 0) {
+                cpsDisplay.innerText = (clicks / elapsed).toFixed(2);
             }
+
+            if (remaining <= 0) finishTest();
         }, 100);
 
         function finishTest() {
@@ -120,31 +110,21 @@
             isFinished = true;
             clearInterval(timerInterval);
 
-            // Визуальная блокировка
             area.style.opacity = "0.5";
             area.style.borderColor = "#ff0066";
             area.style.boxShadow = "0 0 20px #ff0066";
             area.innerText = "ОБРАБОТКА...";
             
-            const finalCps = (clicks / timerDuration).toFixed(2);
-            
-            // Отправка данных
             const resultData = JSON.stringify({
-                cps: finalCps, 
+                cps: (clicks / timerDuration).toFixed(2), 
                 total_clicks: clicks
             });
 
             tg.sendData(resultData);
-            
-            // Задержка 800мс для стабильной отправки на сервер
-            setTimeout(() => { 
-                tg.close(); 
-            }, 800);
+            setTimeout(() => { tg.close(); }, 800);
         }
 
-        function reset() {
-            location.reload();
-        }
+        function reset() { location.reload(); }
     </script>
 </body>
 </html>
