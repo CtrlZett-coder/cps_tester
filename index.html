@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>CPS Trainer</title>
-    <!-- Подключаем скрипт Телеграма -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -20,7 +19,6 @@
             overflow: hidden;
             touch-action: none;
         }
-
         #click-area {
             width: 250px;
             height: 250px;
@@ -39,12 +37,10 @@
             transition: transform 0.05s;
             margin-bottom: 20px;
         }
-
         #click-area:active {
             transform: scale(0.95);
             background-color: rgba(0, 255, 204, 0.1);
         }
-
         #stats { font-size: 22px; margin-bottom: 20px; }
         .btn { 
             padding: 12px 25px; 
@@ -58,21 +54,17 @@
     </style>
 </head>
 <body>
-
     <div id="click-area">КЛИКАЙ ЗДЕСЬ<br>(DRAG/FLY)</div>
-
     <div id="stats">
         <div>CPS: <span id="cps">0</span></div>
         <div>Клики: <span id="total">0</span></div>
         <div>Время: <span id="timer">10</span>с</div>
     </div>
-
     <button class="btn" onclick="reset()">СБРОС</button>
 
     <script>
-        // Инициализация Telegram WebApp
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Развернуть на весь экран
+        tg.expand();
 
         let clicks = 0;
         let startTime = null;
@@ -108,14 +100,14 @@
                 isFinished = true;
                 const finalCps = (clicks / timerDuration).toFixed(2);
                 
-                // Отправляем данные в бота
+                // Отправляем данные. Ключи: cps и total_clicks
                 tg.sendData(JSON.stringify({
                     cps: finalCps, 
                     total_clicks: clicks
                 }));
                 
-                // Закрываем приложение через секунду, чтобы юзер увидел результат
-                setTimeout(() => { tg.close(); }, 1500);
+                // Небольшая задержка перед закрытием для стабильности отправки
+                setTimeout(() => { tg.close(); }, 200);
             }
         }, 100);
 
