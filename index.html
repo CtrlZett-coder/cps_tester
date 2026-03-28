@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CPS Trainer</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #1a1a1a; color: white; margin: 0; overflow: hidden; }
+        #click-area { width: 100vw; height: 60vh; background: #333; display: flex; align-items: center; justify-content: center; font-size: 24px; border-bottom: 5px solid #555; touch-action: none; }
+        #stats { padding: 20px; font-size: 20px; }
+        .btn { padding: 15px 30px; background: #0088cc; border: none; color: white; border-radius: 10px; font-size: 18px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div id="click-area">КЛИКАЙ СЮДА (DRAG / BUTTERFLY)</div>
+    <div id="stats">
+        <div>CPS: <span id="cps">0</span></div>
+        <div>Всего кликов: <span id="total">0</span></div>
+        <div>Время: <span id="timer">10</span> сек.</div>
+    </div>
+    <button class="btn" onclick="reset()">Сброс</button>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let clicks = 0;
+        let startTime = null;
+        let timerDuration = 10;
+        let isFinished = false;
+
+        const area = document.getElementById('click-area');
+        const cpsDisplay = document.getElementById('cps');
+        const timerDisplay = document.getElementById('timer');
+
+        area.addEventListener('pointerdown', (e) => {
+            if (isFinished) return;
+            if (!startTime) startTime = Date.now();
+            
+            clicks++;
+            document.getElementById('total').innerText = clicks;
+            
+            let elapsed = (Date.now() - startTime) / 1000;
+            if (elapsed > 0) {
+                cpsDisplay.innerText = (clicks / elapsed).toFixed(2);
+            }
+        });
+
+        setInterval(() => {
+            if (!startTime || isFinished) return;
+            let elapsed = (Date.now() - startTime) / 1000;
+            let remaining = Math.max(0, timerDuration - elapsed);
+            timerDisplay.innerText = remaining.toFixed(1);
+
+            if (remaining === 0) {
+                isFinished = true;
+                const finalCps = (clicks / timerDuration).toFixed(2);
+                // Отправляем результат обратно в бот!
+                Telegram.WebApp.sendData(JSON.stringify({cps: finalCps, clicks: clicks}));
+            }
+        }, 100);
+
+        function reset() {
+            clicks = 0; startTime = null; isFinished = false;
+            cpsDisplay.innerText = 0; timerDisplay.innerText = 10;
+        }
+    </script>
+</body>
+</html>
