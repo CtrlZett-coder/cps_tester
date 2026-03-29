@@ -2,11 +2,16 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CPS Ultra - Themes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CPS Tester Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* --- БАЗОВЫЕ СТИЛИ --- */
+        :root {
+            --primary-color: #0088cc;
+            --bg-color: #1c1c1c;
+            --text-color: #ffffff;
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -14,200 +19,158 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            transition: all 0.5s ease;
+            height: 100vh;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
-            touch-action: none;
-            user-select: none;
-            -webkit-user-select: none;
+            touch-action: manipulation; /* Убирает задержку клика на мобилках */
         }
 
-        /* Панель переключения */
-        .style-switcher {
-            position: absolute;
-            top: 20px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-            z-index: 10;
-            padding: 0 10px;
+        #title {
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .style-switcher button {
-            padding: 6px 12px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 12px;
-            backdrop-filter: blur(5px);
+        #timer {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #aaa;
         }
 
-        .style-switcher button.active {
-            background: #fff;
-            color: #000;
-            font-weight: bold;
-        }
-
-        /* Зона клика (Круг) */
         #click-area {
-            width: 220px;
-            height: 220px;
-            border: 5px solid currentColor;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, #333 0%, #222 100%);
+            border: 4px solid var(--primary-color);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-            transition: transform 0.05s ease-out, all 0.3s ease;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-
-        #click-area:active { transform: scale(0.92); }
-
-        /* Статистика */
-        #stats {
-            text-align: center;
             font-size: 20px;
-            line-height: 1.5;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .btn-reset {
-            margin-top: 25px;
-            padding: 10px 40px;
-            background: transparent;
-            border: 2px solid currentColor;
-            color: inherit;
-            border-radius: 8px;
-            cursor: pointer;
             font-weight: bold;
+            box-shadow: 0 0 20px rgba(0, 136, 204, 0.3);
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.05s active;
         }
 
-        /* --- ТЕМЫ --- */
-
-        /* 1. NEON (По умолчанию) */
-        body.neon-style { background: #1a1a2e; color: #00ffcc; }
-        .neon-style #click-area { box-shadow: 0 0 20px #00ffcc; text-shadow: 0 0 10px #00ffcc; }
-
-        /* 2. YELLOW-GREEN */
-        body.yellow-style { background: #ffeb3b; color: #2e7d32; }
-        .yellow-style #click-area { border-width: 8px; background: white; box-shadow: 5px 5px 0px #2e7d32; }
-        .yellow-style .style-switcher button { color: #333; border-color: #333; }
-
-        /* 3. SPACE */
-        body.space-style { 
-            background: #000; 
-            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px);
-            background-size: 100px 100px;
-            color: #fff; 
-        }
-        .space-style #click-area { 
-            background: linear-gradient(45deg, #2196f3, #9c27b0); 
-            border: none;
-            box-shadow: 0 0 30px rgba(156, 39, 176, 0.6);
+        #click-area:active {
+            transform: scale(0.95);
+            background: radial-gradient(circle, #444 0%, #333 100%);
         }
 
-        /* 4. MICE */
-        body.mice-style { background: #f5f5f5; color: #5d4037; }
-        .mice-style #click-area { background: #fff8e1; border: 5px dashed #ffa000; border-radius: 40px; color: #ffa000;}
+        #stats {
+            margin-top: 20px;
+            font-size: 20px;
+        }
 
-        /* 5. MEMES */
-        body.memes-style { background: #ff5252; color: #fff; font-family: 'Comic Sans MS', cursive; }
-        .memes-style #click-area { background: #4caf50; border: 10px solid #fff; transform: rotate(-5deg); }
-        .memes-style #click-area:active { transform: rotate(5deg) scale(0.9); }
-
+        #reset-btn {
+            margin-top: 30px;
+            padding: 10px 25px;
+            background: transparent;
+            border: 1px solid #555;
+            color: #888;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
     </style>
 </head>
-<body class="neon-style">
+<body>
 
-    <div class="style-switcher">
-        <button onclick="changeStyle('neon', this)" class="active">Neon</button>
-        <button onclick="changeStyle('yellow', this)">Yellow</button>
-        <button onclick="changeStyle('space', this)">Space</button>
-        <button onclick="changeStyle('mice', this)">Mice</button>
-        <button onclick="changeStyle('memes', this)">Memes</button>
-    </div>
-
-    <div id="click-area">КЛИКАЙ!</div>
+    <h1 id="title">CPS TESTER</h1>
+    <div id="timer">00:10</div>
+    
+    <div id="click-area">CLICK ME</div>
 
     <div id="stats">
-        CPS: <span id="cps">0.00</span><br>
-        КЛИКИ: <span id="total">0</span><br>
-        ВРЕМЯ: <span id="timer">10.0</span>с
+        <span id="clicks-count">0</span> CLICKS
     </div>
 
-    <button class="btn-reset" onclick="location.reload()">СБРОС</button>
+    <button id="reset-btn">RESET</button>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.ready();
 
+        // 1. ПЕРЕВОДЫ
+        const urlParams = new URLSearchParams(window.location.search);
+        const lang = urlParams.get('lang') || 'ru';
+
+        const i18n = {
+            'ru': { 'title': 'КЛИК ТЕСТЕР', 'area': 'ЖМИ СЮДА', 'reset': 'Сбросить', 'clicks': 'КЛИКОВ', 'timer': 'Осталось: ' },
+            'en': { 'title': 'CPS TESTER', 'area': 'CLICK HERE', 'reset': 'Reset', 'clicks': 'CLICKS', 'timer': 'Time left: ' },
+            'zh': { 'title': '点击测试', 'area': '点击这里', 'reset': '重置', 'clicks': '次点击', 'timer': '剩余时间: ' },
+            'es': { 'title': 'PRUEBA CPS', 'area': 'CLIC AQUÍ', 'reset': 'Reiniciar', 'clicks': 'CLICKS', 'timer': 'Tiempo: ' },
+            'fr': { 'title': 'TEST CPS', 'area': 'CLIQUEZ ICI', 'reset': 'Reset', 'clicks': 'CLICS', 'timer': 'Temps: ' },
+            'ar': { 'title': 'اختبار النقر', 'area': 'انقر هنا', 'reset': 'إعادة', 'clicks': 'نقرات', 'timer': 'الوقت: ' }
+        };
+
+        const t = i18n[lang] || i18n['en'];
+
+        // Применяем переводы
+        document.getElementById('title').innerText = t.title;
+        document.getElementById('click-area').innerText = t.area;
+        document.getElementById('reset-btn').innerText = t.reset;
+        document.querySelector('#stats').innerHTML = `<span id="clicks-count">0</span> ${t.clicks}`;
+
+        // 2. ЛОГИКА ТЕСТА
         let clicks = 0;
-        let startTime = null;
-        let isFinished = false;
-        const duration = 10000; 
+        let timeLeft = 10;
+        let timerId = null;
+        let active = false;
+        let finished = false;
 
-        const area = document.getElementById('click-area');
-        const cpsDisp = document.getElementById('cps');
-        const totDisp = document.getElementById('total');
-        const timDisp = document.getElementById('timer');
+        const clickArea = document.getElementById('click-area');
+        const clicksDisplay = document.getElementById('clicks-count');
+        const timerDisplay = document.getElementById('timer');
 
-        // Переключение тем
-        function changeStyle(theme, btn) {
-            document.body.className = theme + '-style';
-            document.querySelectorAll('.style-switcher button').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
-
-        // Логика кликов
-        area.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            if (isFinished) return;
-            if (!startTime) {
-                startTime = performance.now();
-                requestAnimationFrame(update);
+        // Используем pointerdown для максимальной скорости реакции
+        clickArea.addEventListener('pointerdown', (e) => {
+            if (finished) return;
+            
+            if (!active) {
+                startTest();
             }
+            
             clicks++;
-            totDisp.textContent = clicks;
+            clicksDisplay.innerText = clicks;
         });
 
-        function update() {
-            if (isFinished) return;
-
-            const now = performance.now();
-            const elapsed = now - startTime;
-            const remaining = Math.max(0, (duration - elapsed) / 1000);
-
-            timDisp.textContent = remaining.toFixed(1);
-            cpsDisp.textContent = (clicks / (Math.max(100, elapsed) / 1000)).toFixed(2);
-
-            if (elapsed >= duration) {
-                finish();
-            } else {
-                requestAnimationFrame(update);
-            }
+        function startTest() {
+            active = true;
+            clickArea.innerText = ""; // Убираем текст после начала
+            timerId = setInterval(() => {
+                timeLeft -= 1;
+                timerDisplay.innerText = `00:${timeLeft < 10 ? '0' + timeLeft : timeLeft}`;
+                
+                if (timeLeft <= 0) {
+                    endTest();
+                }
+            }, 1000);
         }
 
-        function finish() {
-            isFinished = true;
-            area.textContent = "КОНЕЦ";
+        function endTest() {
+            clearInterval(timerId);
+            finished = true;
+            active = false;
             
+            const cps = (clicks / 10).toFixed(2);
+
+            // Отправка данных боту
             tg.sendData(JSON.stringify({
-                cps: (clicks / 10).toFixed(2),
-                total_clicks: clicks
+                cps: cps,
+                total_clicks: clicks,
+                lang: lang
             }));
-            
-            // Если нужно закрывать через секунду:
-            // setTimeout(() => tg.close(), 1500);
         }
+
+        document.getElementById('reset-btn').onclick = () => {
+            location.reload();
+        };
     </script>
 </body>
 </html>
