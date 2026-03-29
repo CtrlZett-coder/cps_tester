@@ -66,9 +66,9 @@ def get_top_list(user_id, lang, period_days=None):
     for i, row in enumerate(rows):
         uid, name, cps, clks = row
         rank = i + 1
-        name = name if name != "None" else "Player"
+        name = name if name and name != "None" else "Player"
         medal = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else f"{rank}."
-        line = f"{medal} {name} — **{cps}** CPS ({clks} clk)\n"
+        line = f"{medal} {name} — **{cps}** CPS ({clks} кл.)\n"
         
         if rank <= 3:
             text += line
@@ -78,13 +78,13 @@ def get_top_list(user_id, lang, period_days=None):
     if not rows: text += "..."
     return text + user_line
 
-# --- СЛОВАРЬ ПЕРЕВОДОВ (ВСЕ ЯЗЫКИ) ---
+# --- СЛОВАРЬ ПЕРЕВОДОВ (ПОЛНЫЙ) ---
 LANG_DATA = {
     "ru": {
-        "welcome": "Привет, {name}! 🔥\nЖми кнопку внизу! ⚡️🖱",
+        "welcome": "Привет, {name}! 🔥\nЭто профессиональный тестер CPS :)\nПроверь свою мышку на кликабельность! (если она, конечно, выживет 🤣)\n\nЖми кнопку внизу! ⚡️🖱",
         "btn": "🎮 ТРЕНИРОВАТЬ КЛИК",
-        "change": "Язык: Русский 🇷🇺",
-        "wait": "🤖 *AI анализирует...*",
+        "change": "Язык изменен на Русский 🇷🇺",
+        "wait": "🤖 *AI анализирует твой позор...*",
         "headers": ["ИТОГИ ЗАМЕРА", "Скорость", "Всего"],
         "top_btn": "📊 Топ Ранг",
         "top_titles": ["ТОП НЕДЕЛИ", "ТОП МЕСЯЦА", "ТОП ВСЕ ВРЕМЯ"],
@@ -92,10 +92,10 @@ LANG_DATA = {
         "nav": ["Неделя", "Месяц", "Всего", "« Назад"]
     },
     "en": {
-        "welcome": "Hello, {name}! 🔥\nPress the button below! ⚡️🖱",
+        "welcome": "Hello, {name}! 🔥\nProfessional CPS Tester :)\nCheck your mouse durability! (if it survives, haha 🤣)\n\nPress the button below! ⚡️🖱",
         "btn": "🎮 TRAIN CLICK",
-        "change": "Language: English 🇺🇸",
-        "wait": "🤖 *AI is analyzing...*",
+        "change": "Language changed to English 🇺🇸",
+        "wait": "🤖 *AI is analyzing your performance...*",
         "headers": ["TEST RESULTS", "Speed", "Total"],
         "top_btn": "📊 Top Rank",
         "top_titles": ["WEEKLY TOP", "MONTHLY TOP", "ALL TIME TOP"],
@@ -103,10 +103,10 @@ LANG_DATA = {
         "nav": ["Week", "Month", "All", "« Back"]
     },
     "zh": {
-        "welcome": "你好, {name}! 🔥\n点击下方按钮! ⚡️🖱",
+        "welcome": "你好, {name}! 🔥\n专业 CPS 测试器 :)\n测试你的鼠标耐用性! (如果它能活下来 🤣)\n\n点击下方按钮! ⚡️🖱",
         "btn": "🎮 开始训练",
-        "change": "语言: 中文 🇨🇳",
-        "wait": "🤖 *AI 正在分析...*",
+        "change": "语言已更改为 中文 🇨🇳",
+        "wait": "🤖 *AI 正在分析你的表现...*",
         "headers": ["测试结果", "速度", "总计"],
         "top_btn": "📊 排名",
         "top_titles": ["周榜", "月榜", "总榜"],
@@ -114,10 +114,10 @@ LANG_DATA = {
         "nav": ["周", "月", "总", "« 返回"]
     },
     "es": {
-        "welcome": "¡Hola, {name}! 🔥\n¡Pulsa el botón! ⚡️🖱",
+        "welcome": "¡Hola, {name}! 🔥\nProbador de CPS profesional :)\n¡Prueba la resistencia de tu ratón! (si sobrevive 🤣)\n\n¡Pulsa el botón! ⚡️🖱",
         "btn": "🎮 ENTRENAR CLIC",
-        "change": "Idioma: Español 🇪🇸",
-        "wait": "🤖 *IA analizando...*",
+        "change": "Idioma cambiado a Español 🇪🇸",
+        "wait": "🤖 *IA analizando tu rendimiento...*",
         "headers": ["RESULTADOS", "Velocidad", "Total"],
         "top_btn": "📊 Ranking",
         "top_titles": ["TOP SEMANA", "TOP MES", "TOP TOTAL"],
@@ -125,10 +125,10 @@ LANG_DATA = {
         "nav": ["Semana", "Mes", "Todo", "« Volver"]
     },
     "fr": {
-        "welcome": "Bonjour, {name}! 🔥\nAppuyez sur le bouton ! ⚡️🖱",
+        "welcome": "Bonjour, {name}! 🔥\nTesteur CPS professionnel :)\nTestez la survie de votre souris ! (si elle survit 🤣)\n\nAppuyez sur le bouton ! ⚡️🖱",
         "btn": "🎮 ENTRAÎNER LE CLIC",
-        "change": "Langue: Français 🇫🇷",
-        "wait": "🤖 *L'IA analyse...*",
+        "change": "Langue changée en Français 🇫🇷",
+        "wait": "🤖 *L'IA analyse votre performance...*",
         "headers": ["RÉSULTATS", "Vitesse", "Total"],
         "top_btn": "📊 Classement",
         "top_titles": ["TOP SEMAINE", "TOP MOIS", "TOP TOTAL"],
@@ -136,10 +136,10 @@ LANG_DATA = {
         "nav": ["Semaine", "Mois", "Tout", "« Retour"]
     },
     "ar": {
-        "welcome": "مرحباً {name}! 🔥\nاضغط على الزر! ⚡️🖱",
+        "welcome": "مرحباً {name}! 🔥\nمختبر CPS احترافي :)\nاختبر قوة الماوس الخاص بك! (إذا نجا 🤣)\n\nاضغط على الزр! ⚡️🖱",
         "btn": "🎮 تدريب النقر",
-        "change": "اللغة: العربية 🇸🇦",
-        "wait": "🤖 *الذكاء الاصطناعي يحلل...*",
+        "change": "تم تغيير اللغة إلى العربية 🇸🇦",
+        "wait": "🤖 *الذكاء الاصطناعي يحلل مستواك...*",
         "headers": ["نتائج الاختبار", "سرعة", "إجمالي"],
         "top_btn": "📊 الترتيب",
         "top_titles": ["أفضل الأسبوع", "أفضل الشهر", "أفضل وقت"],
@@ -175,11 +175,11 @@ async def get_ai_insult(cps, lang_code):
     try:
         response = await client.chat.completions.create(
             model="deepseek-chat",
-            messages=[{"role": "system", "content": f"You are a gamer. Roast {cps} CPS. 2 sentences. Lang: {lang_code}."}],
+            messages=[{"role": "system", "content": f"You are a gaming pro. Give a sarcastic roast for {cps} CPS. Max 25 words. Lang: {lang_code}."}],
             timeout=10.0
         )
         return response.choices[0].message.content
-    except: return "Nice!"
+    except: return "Nice job! Keep clicking."
 
 # --- ОБРАБОТЧИКИ ---
 
@@ -193,7 +193,9 @@ async def set_lang(callback: types.CallbackQuery):
     L = LANG_DATA[lang]
     url = f"{BASE_URL}?v={int(time.time())}&lang={lang}"
     kb = [[types.KeyboardButton(text=L["btn"], web_app=types.WebAppInfo(url=url))]]
-    await callback.message.answer(L["change"], reply_markup=types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True))
+    await callback.message.answer(L["change"])
+    await callback.message.answer(L["welcome"].format(name=callback.from_user.first_name), 
+                                 reply_markup=types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True))
     await callback.answer()
 
 @dp.message(F.web_app_data)
@@ -204,6 +206,7 @@ async def handle_data(message: types.Message):
         save_user_result(message.from_user.id, message.from_user.username or message.from_user.first_name, cps, total)
         
         L = LANG_DATA.get(lang, LANG_DATA["en"])
+        wait = await message.answer(L["wait"], parse_mode="Markdown")
         insult = await get_ai_insult(cps, lang)
         
         kb = InlineKeyboardBuilder()
@@ -212,6 +215,7 @@ async def handle_data(message: types.Message):
         h = L["headers"]
         res = (f"🏁 **{h[0]}**\n━━━━━━━━━━━━━━━\n"
                f"🚀 {h[1]}: **{cps} CPS**\n🎯 {h[2]}: **{total}**\n━━━━━━━━━━━━━━━\n💬 {insult}")
+        await wait.delete()
         await message.answer(res, reply_markup=kb.as_markup(), parse_mode="Markdown")
     except Exception as e: logging.error(e)
 
@@ -221,7 +225,7 @@ async def handle_top(callback: types.CallbackQuery):
     action, lang = parts[1], parts[2]
     
     if action == "back":
-        await callback.message.edit_text("🎮") # Просто иконка при возврате
+        await callback.message.edit_text("🎮 Тренируйся больше, чтобы попасть в ТОП!")
         return
     
     days = 7 if action == "7" else 30 if action == "30" else None
