@@ -78,10 +78,10 @@ def get_top_list(user_id, lang, period_days=None):
     if not rows: text += "..."
     return text + user_line
 
-# --- СЛОВАРЬ ПЕРЕВОДОВ (ПОЛНЫЙ) ---
+# --- СЛОВАРЬ ПЕРЕВОДОВ (ОБНОВЛЕННЫЙ ТЕКСТ) ---
 LANG_DATA = {
     "ru": {
-        "welcome": "Привет, {name}! 🔥\nЭто профессиональный тестер CPS :)\nПроверь свою мышку на кликабельность! (если она, конечно, выживет 🤣)\n\nЖми кнопку внизу! ⚡️🖱",
+        "welcome": "Привет, {name}! 🔥🔥🔥\nЭто **профессиональный** КПС трекер!\nПроверь свою мышку на **СКОРОСТЬ** и **КЛИКИ**! (если она, конечно, выживет 🤣)\nНачинай кликать **ПРЯМО СЕЙЧАС**!\nЖми кнопку снизу 👇",
         "btn": "🎮 ТРЕНИРОВАТЬ КЛИК",
         "change": "Язык изменен на Русский 🇷🇺",
         "wait": "🤖 *AI анализирует твой позор...*",
@@ -92,7 +92,7 @@ LANG_DATA = {
         "nav": ["Неделя", "Месяц", "Всего", "« Назад"]
     },
     "en": {
-        "welcome": "Hello, {name}! 🔥\nProfessional CPS Tester :)\nCheck your mouse durability! (if it survives, haha 🤣)\n\nPress the button below! ⚡️🖱",
+        "welcome": "Hello, {name}! 🔥🔥🔥\nThis is a **professional** CPS tracker!\nCheck your mouse for **SPEED** and **CLICKS**! (if it survives, of course 🤣)\nStart clicking **RIGHT NOW**!\nPress the button below 👇",
         "btn": "🎮 TRAIN CLICK",
         "change": "Language changed to English 🇺🇸",
         "wait": "🤖 *AI is analyzing your performance...*",
@@ -103,7 +103,7 @@ LANG_DATA = {
         "nav": ["Week", "Month", "All", "« Back"]
     },
     "zh": {
-        "welcome": "你好, {name}! 🔥\n专业 CPS 测试器 :)\n测试你的鼠标耐用性! (如果它能活下来 🤣)\n\n点击下方按钮! ⚡️🖱",
+        "welcome": "你好, {name}! 🔥🔥🔥\n这是一个**专业**的 CPS 测试器！\n测试你鼠标的**速度**和**点击次数**！（如果它能活下来 🤣）\n**现在**就开始点击！\n点击下方按钮 👇",
         "btn": "🎮 开始训练",
         "change": "语言已更改为 中文 🇨🇳",
         "wait": "🤖 *AI 正在分析你的表现...*",
@@ -114,7 +114,7 @@ LANG_DATA = {
         "nav": ["周", "月", "总", "« 返回"]
     },
     "es": {
-        "welcome": "¡Hola, {name}! 🔥\nProbador de CPS profesional :)\n¡Prueba la resistencia de tu ratón! (si sobrevive 🤣)\n\n¡Pulsa el botón! ⚡️🖱",
+        "welcome": "¡Hola, {name}! 🔥🔥🔥\n¡Este es un rastreador de CPS **profesional**!\n¡Pon a prueba la **VELOCIDAD** y los **CLICKS** de tu ratón! (si sobrevive, claro 🤣)\n¡Empieza a hacer clic **AHORA MISMO**!\nPulsa el botón de abajo 👇",
         "btn": "🎮 ENTRENAR CLIC",
         "change": "Idioma cambiado a Español 🇪🇸",
         "wait": "🤖 *IA analizando tu rendimiento...*",
@@ -125,7 +125,7 @@ LANG_DATA = {
         "nav": ["Semana", "Mes", "Todo", "« Volver"]
     },
     "fr": {
-        "welcome": "Bonjour, {name}! 🔥\nTesteur CPS professionnel :)\nTestez la survie de votre souris ! (si elle survit 🤣)\n\nAppuyez sur le bouton ! ⚡️🖱",
+        "welcome": "Bonjour, {name}! 🔥🔥🔥\nC'est un tracker CPS **professionnel** !\nTestez la **VITESSE** et les **CLICS** de votre souris ! (si elle survit, bien sûr 🤣)\nCommencez à cliquer **DÈS MAINTENANT** !\nAppuyez sur le bouton ci-dessous 👇",
         "btn": "🎮 ENTRAÎNER LE CLIC",
         "change": "Langue changée en Français 🇫🇷",
         "wait": "🤖 *L'IA analyse votre performance...*",
@@ -136,7 +136,7 @@ LANG_DATA = {
         "nav": ["Semaine", "Mois", "Tout", "« Retour"]
     },
     "ar": {
-        "welcome": "مرحباً {name}! 🔥\nمختبر CPS احترافي :)\nاختبر قوة الماوس الخاص بك! (إذا نجا 🤣)\n\nاضغط على الزр! ⚡️🖱",
+        "welcome": "مرحباً {name}! 🔥🔥🔥\nهذا متتبع CPS **احترافي**!\nاختبر **سرعة** الماوس و **نقراته**! (إذا نجا بالطبع 🤣)\nابدأ النقر **الآن**!\nاضغط على الزر أدناه 👇",
         "btn": "🎮 تدريب النقر",
         "change": "تم تغيير اللغة إلى العربية 🇸🇦",
         "wait": "🤖 *الذكاء الاصطناعي يحلل مستواك...*",
@@ -192,10 +192,18 @@ async def set_lang(callback: types.CallbackQuery):
     lang = callback.data.split("_")[1]
     L = LANG_DATA[lang]
     url = f"{BASE_URL}?v={int(time.time())}&lang={lang}"
-    kb = [[types.KeyboardButton(text=L["btn"], web_app=types.WebAppInfo(url=url))]]
+    
+    webapp_kb = [[types.KeyboardButton(text=L["btn"], web_app=types.WebAppInfo(url=url))]]
+    inline_kb = InlineKeyboardBuilder()
+    inline_kb.button(text=L["top_btn"], callback_data=f"top_7_{lang}")
+    
     await callback.message.answer(L["change"])
-    await callback.message.answer(L["welcome"].format(name=callback.from_user.first_name), 
-                                 reply_markup=types.ReplyKeyboardMarkup(keyboard=kb, resize_keyboard=True))
+    await callback.message.answer(
+        L["welcome"].format(name=callback.from_user.first_name), 
+        reply_markup=inline_kb.as_markup(),
+        parse_mode="Markdown" # Чтобы работал жирный шрифт
+    )
+    await callback.message.answer("⏬", reply_markup=types.ReplyKeyboardMarkup(keyboard=webapp_kb, resize_keyboard=True))
     await callback.answer()
 
 @dp.message(F.web_app_data)
@@ -225,7 +233,21 @@ async def handle_top(callback: types.CallbackQuery):
     action, lang = parts[1], parts[2]
     
     if action == "back":
-        await callback.message.edit_text("🎮 Тренируйся больше, чтобы попасть в ТОП!")
+        L = LANG_DATA.get(lang, LANG_DATA["ru"])
+        url = f"{BASE_URL}?v={int(time.time())}&lang={lang}"
+        webapp_kb = [[types.KeyboardButton(text=L["btn"], web_app=types.WebAppInfo(url=url))]]
+        
+        inline_kb = InlineKeyboardBuilder()
+        inline_kb.button(text=L["top_btn"], callback_data=f"top_7_{lang}")
+
+        await callback.message.delete()
+        await callback.message.answer(
+            L["welcome"].format(name=callback.from_user.first_name),
+            reply_markup=inline_kb.as_markup(),
+            parse_mode="Markdown"
+        )
+        await callback.message.answer("⏬", reply_markup=types.ReplyKeyboardMarkup(keyboard=webapp_kb, resize_keyboard=True))
+        await callback.answer()
         return
     
     days = 7 if action == "7" else 30 if action == "30" else None
