@@ -34,16 +34,18 @@
             margin-bottom: 5px;
             text-shadow: 0 0 15px var(--accent-color);
             letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         #timer {
-            font-size: 20px;
+            font-size: 22px;
             font-family: monospace;
             background: var(--card-bg);
-            padding: 5px 15px;
+            padding: 8px 20px;
             border-radius: 15px;
             margin-bottom: 30px;
             border: 1px solid rgba(255,255,255,0.1);
+            color: #ffde59;
         }
 
         /* Главная кнопка-кликер */
@@ -55,25 +57,26 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
             text-align: center;
             box-shadow: 0 0 30px rgba(0, 210, 255, 0.4), inset 0 0 20px rgba(255,255,255,0.3);
             cursor: pointer;
             user-select: none;
-            transition: transform 0.05s ease;
+            transition: transform 0.05s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             border: 8px solid rgba(255,255,255,0.1);
+            -webkit-tap-highlight-color: transparent;
         }
 
         #click-area:active {
-            transform: scale(0.92);
-            box-shadow: 0 0 50px var(--accent-color);
+            transform: scale(0.90);
+            box-shadow: 0 0 60px var(--accent-color);
         }
 
         #stats {
             margin-top: 30px;
-            padding: 15px 40px;
+            padding: 15px 50px;
             background: var(--card-bg);
             border-radius: 20px;
             backdrop-filter: blur(10px);
@@ -83,9 +86,16 @@
 
         #clicks-count {
             display: block;
-            font-size: 48px;
+            font-size: 56px;
             font-weight: 900;
             color: var(--accent-color);
+            line-height: 1;
+        }
+
+        #label-clicks {
+            font-size: 14px;
+            letter-spacing: 2px;
+            opacity: 0.7;
         }
 
         #reset-btn {
@@ -93,26 +103,26 @@
             background: none;
             border: 1px solid rgba(255,255,255,0.3);
             color: rgba(255,255,255,0.6);
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 30px;
             cursor: pointer;
             font-size: 14px;
             transition: all 0.3s;
+            text-transform: uppercase;
         }
 
-        #reset-btn:hover {
+        #reset-btn:active {
+            background: rgba(255,255,255,0.1);
             color: white;
-            border-color: white;
         }
 
-        /* Анимация пульсации до начала теста */
         .pulse {
             animation: pulse-animation 2s infinite;
         }
 
         @keyframes pulse-animation {
-            0% { box-shadow: 0 0 0 0px rgba(0, 210, 255, 0.4); }
-            100% { box-shadow: 0 0 0 25px rgba(0, 210, 255, 0); }
+            0% { box-shadow: 0 0 0 0px rgba(0, 210, 255, 0.6); }
+            100% { box-shadow: 0 0 0 30px rgba(0, 210, 255, 0); }
         }
     </style>
 </head>
@@ -135,27 +145,29 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // 1. ЛОКАЛИЗАЦИЯ
+        // --- ЛОКАЛИЗАЦИЯ ---
         const urlParams = new URLSearchParams(window.location.search);
         const lang = urlParams.get('lang') || 'ru';
 
         const i18n = {
-            'ru': { 'title': 'КЛИК ТЕСТЕР', 'area': 'ЖМИ СЮДА', 'reset': 'Сбросить', 'clicks': 'КЛИКОВ', 'time': 'сек' },
-            'en': { 'title': 'CPS TESTER', 'area': 'CLICK ME', 'reset': 'Reset', 'clicks': 'CLICKS', 'time': 's' },
-            'zh': { 'title': '点击测试', 'area': '点击这里', 'reset': '重置', 'clicks': '次点击', 'time': '秒' },
-            'es': { 'title': 'PRUEBA CPS', 'area': 'DALE CLIC', 'reset': 'Reiniciar', 'clicks': 'CLICKS', 'time': 's' },
-            'fr': { 'title': 'TEST CPS', 'area': 'CLIQUE ICI', 'reset': 'Reset', 'clicks': 'CLICS', 'time': 's' },
-            'ar': { 'title': 'اختبار النقر', 'area': 'انقر هنا', 'reset': 'إعادة', 'clicks': 'نقرات', 'time': 'ثانية' }
+            'ru': { 'title': 'КЛИК ТЕСТЕР', 'area': 'ЖМИ СЮДА', 'reset': 'Сбросить', 'clicks': 'КЛИКОВ', 'time': 'сек', 'done': 'ГОТОВО!' },
+            'en': { 'title': 'CPS TESTER', 'area': 'CLICK ME', 'reset': 'Reset', 'clicks': 'CLICKS', 'time': 's', 'done': 'DONE!' },
+            'zh': { 'title': '点击测试', 'area': '点击这里', 'reset': '重置', 'clicks': '次点击', 'time': '秒', 'done': '完成！' },
+            'es': { 'title': 'PRUEBA CPS', 'area': 'DALE CLIC', 'reset': 'Reiniciar', 'clicks': 'CLICKS', 'time': 's', 'done': '¡HECHO!' },
+            'fr': { 'title': 'TEST CPS', 'area': 'CLIQUE ICI', 'reset': 'Reset', 'clicks': 'CLICS', 'time': 's', 'done': 'FINI !' },
+            'ar': { 'title': 'اختبار النقر', 'area': 'انقر هنا', 'reset': 'إعادة', 'clicks': 'نقرات', 'time': 'ثانية', 'done': 'تم！' }
         };
 
         const t = i18n[lang] || i18n['en'];
 
+        // Применяем переводы
         document.getElementById('title').innerText = t.title;
         document.getElementById('click-area').innerText = t.area;
         document.getElementById('reset-btn').innerText = t.reset;
         document.getElementById('label-clicks').innerText = t.clicks;
+        document.getElementById('timer').innerText = "10.00" + t.time;
 
-        // 2. ЛОГИКА
+        // --- ЛОГИКА ---
         let clicks = 0;
         let timeLeft = 10.0;
         let timerId = null;
@@ -166,7 +178,7 @@
         const clicksDisplay = document.getElementById('clicks-count');
         const timerDisplay = document.getElementById('timer');
 
-        // pointerdown срабатывает быстрее, чем click
+        // Используем pointerdown для максимальной скорости отклика
         clickArea.addEventListener('pointerdown', (e) => {
             e.preventDefault();
             if (finished) return;
@@ -178,9 +190,8 @@
             clicks++;
             clicksDisplay.innerText = clicks;
             
-            // Визуальный эффект при клике
-            clickArea.style.filter = 'brightness(1.2)';
-            setTimeout(() => clickArea.style.filter = 'brightness(1)', 50);
+            // Легкая вибрация при каждом клике (если поддерживается устройством)
+            if (window.navigator.vibrate) window.navigator.vibrate(5);
         });
 
         function startTest() {
@@ -191,13 +202,13 @@
             const startTime = Date.now();
             timerId = setInterval(() => {
                 const elapsed = (Date.now() - startTime) / 1000;
-                timeLeft = (10 - elapsed).toFixed(2);
+                let currentSec = (10 - elapsed).toFixed(2);
                 
-                if (timeLeft <= 0) {
-                    timeLeft = "0.00";
+                if (currentSec <= 0) {
+                    currentSec = "0.00";
                     endTest();
                 }
-                timerDisplay.innerText = timeLeft + t.time;
+                timerDisplay.innerText = currentSec + t.time;
             }, 10);
         }
 
@@ -205,21 +216,25 @@
             clearInterval(timerId);
             finished = true;
             active = false;
-            clickArea.innerText = "DONE!";
+            
+            // Меняем текст на кнопке на переведенный "DONE"
+            clickArea.innerText = t.done;
+            clickArea.style.background = "linear-gradient(circle, #00b09b 0%, #96c93d 100%)"; // Зеленый цвет финиша
             
             const cps = (clicks / 10).toFixed(2);
 
-            // Отправка данных в Telegram
+            // Отправка данных боту
             setTimeout(() => {
                 tg.sendData(JSON.stringify({
                     cps: cps,
                     total_clicks: clicks,
                     lang: lang
                 }));
-            }, 500);
+            }, 600);
         }
 
         document.getElementById('reset-btn').onclick = () => {
+            if (window.navigator.vibrate) window.navigator.vibrate(10);
             location.reload();
         };
     </script>
