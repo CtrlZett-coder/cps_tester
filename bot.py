@@ -5,7 +5,7 @@ import json
 import sqlite3
 from datetime import datetime, timedelta
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from openai import AsyncOpenAI
 
@@ -70,7 +70,7 @@ def get_top_list(user_id, lang, period_days=None):
         medal = "🥇" if rank == 1 else "🥈" if rank == 2 else "🥉" if rank == 3 else f"{rank}."
         line = f"{medal} {name} — **{cps}** CPS ({clks} кл.)\n"
         
-        if rank <= 3:
+        if rank <= 5:
             text += line
         if uid == user_id:
             user_line = f"━━━━━━━━━━━━━━━\n{L['your_place']}: {rank}. {name} — {cps} CPS"
@@ -78,13 +78,13 @@ def get_top_list(user_id, lang, period_days=None):
     if not rows: text += "..."
     return text + user_line
 
-# --- СЛОВАРЬ ПЕРЕВОДОВ (ОБНОВЛЕННЫЙ ТЕКСТ) ---
+# --- ОБНОВЛЕННЫЙ СЛОВАРЬ (ЖИРНЫЙ ШРИФТ И БЕЗ СТРЕЛКИ) ---
 LANG_DATA = {
     "ru": {
-        "welcome": "Привет, {name}! 🔥🔥🔥\nЭто **профессиональный** КПС трекер!\nПроверь свою мышку на **СКОРОСТЬ** и **КЛИКИ**! (если она, конечно, выживет 🤣)\nНачинай кликать **ПРЯМО СЕЙЧАС**!\nЖми кнопку снизу 👇",
+        "welcome": "Привет, {name}! 🔥🔥🔥\nЭто **профессиональный** КПС трекер!\nПроверь свою мышку на **СКОРОСТЬ** и **КЛИКИ**! (если она, конечно, выживет 🤣)\nНачинай кликать **ПРЯМО СЕЙЧАС**!\nЖми кнопку снизу",
         "btn": "🎮 ТРЕНИРОВАТЬ КЛИК",
         "change": "Язык изменен на Русский 🇷🇺",
-        "wait": "🤖 *AI анализирует твой позор...*",
+        "wait": "🤖 *AI анализирует твой результат...*",
         "headers": ["ИТОГИ ЗАМЕРА", "Скорость", "Всего"],
         "top_btn": "📊 Топ Ранг",
         "top_titles": ["ТОП НЕДЕЛИ", "ТОП МЕСЯЦА", "ТОП ВСЕ ВРЕМЯ"],
@@ -92,7 +92,7 @@ LANG_DATA = {
         "nav": ["Неделя", "Месяц", "Всего", "« Назад"]
     },
     "en": {
-        "welcome": "Hello, {name}! 🔥🔥🔥\nThis is a **professional** CPS tracker!\nCheck your mouse for **SPEED** and **CLICKS**! (if it survives, of course 🤣)\nStart clicking **RIGHT NOW**!\nPress the button below 👇",
+        "welcome": "Hello, {name}! 🔥🔥🔥\nThis is a **professional** CPS tracker!\nCheck your mouse for **SPEED** and **CLICKS**! (if it survives, of course 🤣)\nStart clicking **RIGHT NOW**!\nPress the button below",
         "btn": "🎮 TRAIN CLICK",
         "change": "Language changed to English 🇺🇸",
         "wait": "🤖 *AI is analyzing your performance...*",
@@ -103,10 +103,10 @@ LANG_DATA = {
         "nav": ["Week", "Month", "All", "« Back"]
     },
     "zh": {
-        "welcome": "你好, {name}! 🔥🔥🔥\n这是一个**专业**的 CPS 测试器！\n测试你鼠标的**速度**和**点击次数**！（如果它能活下来 🤣）\n**现在**就开始点击！\n点击下方按钮 👇",
+        "welcome": "你好, {name}! 🔥🔥🔥\n这是一个**专业**的 CPS 测试器！\n测试你鼠标的**速度**和**点击次数**！（如果它能活下来 🤣）\n**现在**就开始点击！\n点击下方按钮",
         "btn": "🎮 开始训练",
         "change": "语言已更改为 中文 🇨🇳",
-        "wait": "🤖 *AI 正在分析你的表现...*",
+        "wait": "🤖 *AI 正在分析...*",
         "headers": ["测试结果", "速度", "总计"],
         "top_btn": "📊 排名",
         "top_titles": ["周榜", "月榜", "总榜"],
@@ -114,10 +114,10 @@ LANG_DATA = {
         "nav": ["周", "月", "总", "« 返回"]
     },
     "es": {
-        "welcome": "¡Hola, {name}! 🔥🔥🔥\n¡Este es un rastreador de CPS **profesional**!\n¡Pon a prueba la **VELOCIDAD** y los **CLICKS** de tu ratón! (si sobrevive, claro 🤣)\n¡Empieza a hacer clic **AHORA MISMO**!\nPulsa el botón de abajo 👇",
+        "welcome": "¡Hola, {name}! 🔥🔥🔥\n¡Este es un rastreador de CPS **profesional**!\n¡Pon a prueba la **VELOCIDAD** y los **CLICKS** de tu ratón! (si sobrevive, claro 🤣)\n¡Empieza a hacer clic **AHORA MISMO**!\nPulsa el botón de abajo",
         "btn": "🎮 ENTRENAR CLIC",
         "change": "Idioma cambiado a Español 🇪🇸",
-        "wait": "🤖 *IA analizando tu rendimiento...*",
+        "wait": "🤖 *IA analizando...*",
         "headers": ["RESULTADOS", "Velocidad", "Total"],
         "top_btn": "📊 Ranking",
         "top_titles": ["TOP SEMANA", "TOP MES", "TOP TOTAL"],
@@ -125,10 +125,10 @@ LANG_DATA = {
         "nav": ["Semana", "Mes", "Todo", "« Volver"]
     },
     "fr": {
-        "welcome": "Bonjour, {name}! 🔥🔥🔥\nC'est un tracker CPS **professionnel** !\nTestez la **VITESSE** et les **CLICS** de votre souris ! (si elle survit, bien sûr 🤣)\nCommencez à cliquer **DÈS MAINTENANT** !\nAppuyez sur le bouton ci-dessous 👇",
+        "welcome": "Bonjour, {name}! 🔥🔥🔥\nC'est un tracker CPS **professionnel** !\nTestez la **VITESSE** et les **CLICS** de votre souris ! (si elle survit, bien sûr 🤣)\nCommencez à cliquer **DÈS MAINTENANT** !\nAppuyez sur le bouton ci-dessous",
         "btn": "🎮 ENTRAÎNER LE CLIC",
         "change": "Langue changée en Français 🇫🇷",
-        "wait": "🤖 *L'IA analyse votre performance...*",
+        "wait": "🤖 *L'IA analyse...*",
         "headers": ["RÉSULTATS", "Vitesse", "Total"],
         "top_btn": "📊 Classement",
         "top_titles": ["TOP SEMAINE", "TOP MOIS", "TOP TOTAL"],
@@ -136,13 +136,13 @@ LANG_DATA = {
         "nav": ["Semaine", "Mois", "Tout", "« Retour"]
     },
     "ar": {
-        "welcome": "مرحباً {name}! 🔥🔥🔥\nهذا متتبع CPS **احترافي**!\nاختبر **سرعة** الماوس و **نقراته**! (إذا نجا بالطبع 🤣)\nابدأ النقر **الآن**!\nاضغط على الزر أدناه 👇",
+        "welcome": "مرحباً {name}! 🔥🔥🔥\nهذا متتبع CPS **احترافي**!\nاختبر **سرعة** الماوس و **نقراته**! (إذا نجا بالطبع 🤣)\nابدأ النقر **الآن**!\nاضغط на الزر أدناه",
         "btn": "🎮 تدريب النقر",
         "change": "تم تغيير اللغة إلى العربية 🇸🇦",
-        "wait": "🤖 *الذكاء الاصطناعي يحلل مستواك...*",
+        "wait": "🤖 *الذكاء الاصطناعي يحلل...*",
         "headers": ["نتائج الاختبار", "سرعة", "إجمالي"],
         "top_btn": "📊 الترتيب",
-        "top_titles": ["أفضل الأسبوع", "أفضل الشهر", "أفضل وقت"],
+        "top_titles": ["أفضل الأسبوع", "أفضل الشهر", "الكل"],
         "your_place": "مكانك",
         "nav": ["أسبوع", "شهر", "الكل", "« عودة"]
     }
@@ -175,11 +175,11 @@ async def get_ai_insult(cps, lang_code):
     try:
         response = await client.chat.completions.create(
             model="deepseek-chat",
-            messages=[{"role": "system", "content": f"You are a gaming pro. Give a sarcastic roast for {cps} CPS. Max 25 words. Lang: {lang_code}."}],
+            messages=[{"role": "system", "content": f"Gaming pro roast for {cps} CPS. Max 20 words. Lang: {lang_code}."}],
             timeout=10.0
         )
         return response.choices[0].message.content
-    except: return "Nice job! Keep clicking."
+    except: return "Nice job!"
 
 # --- ОБРАБОТЧИКИ ---
 
@@ -201,16 +201,16 @@ async def set_lang(callback: types.CallbackQuery):
     await callback.message.answer(
         L["welcome"].format(name=callback.from_user.first_name), 
         reply_markup=inline_kb.as_markup(),
-        parse_mode="Markdown" # Чтобы работал жирный шрифт
+        parse_mode="Markdown"
     )
-    await callback.message.answer("⏬", reply_markup=types.ReplyKeyboardMarkup(keyboard=webapp_kb, resize_keyboard=True))
+    await callback.message.answer("⌨️", reply_markup=types.ReplyKeyboardMarkup(keyboard=webapp_kb, resize_keyboard=True))
     await callback.answer()
 
 @dp.message(F.web_app_data)
 async def handle_data(message: types.Message):
     try:
         data = json.loads(message.web_app_data.data)
-        cps, total, lang = float(data.get("cps", 0)), data.get("total_clicks", 0), data.get("lang", "ru")
+        cps, total, lang = float(data.get("cps", 0)), data.get("total_clicks", 0), data.get("lang", "en")
         save_user_result(message.from_user.id, message.from_user.username or message.from_user.first_name, cps, total)
         
         L = LANG_DATA.get(lang, LANG_DATA["en"])
@@ -234,9 +234,6 @@ async def handle_top(callback: types.CallbackQuery):
     
     if action == "back":
         L = LANG_DATA.get(lang, LANG_DATA["ru"])
-        url = f"{BASE_URL}?v={int(time.time())}&lang={lang}"
-        webapp_kb = [[types.KeyboardButton(text=L["btn"], web_app=types.WebAppInfo(url=url))]]
-        
         inline_kb = InlineKeyboardBuilder()
         inline_kb.button(text=L["top_btn"], callback_data=f"top_7_{lang}")
 
@@ -246,7 +243,6 @@ async def handle_top(callback: types.CallbackQuery):
             reply_markup=inline_kb.as_markup(),
             parse_mode="Markdown"
         )
-        await callback.message.answer("⏬", reply_markup=types.ReplyKeyboardMarkup(keyboard=webapp_kb, resize_keyboard=True))
         await callback.answer()
         return
     
